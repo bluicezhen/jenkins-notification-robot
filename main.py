@@ -16,7 +16,7 @@ class NotificationRobot:
     def POST(self):
         data = json.loads(web.data())
 
-        if data['build']['phase'] in ['QUEUED', 'STARTED', 'FINALIZED']:
+        if data['build']['phase'] in ['STARTED', 'FINALIZED']:
             # Get Feishu webhook URL.
             try:
                 feishu_webhook = parse_qs(data['build']['notes'])['feishu_webhook'][0]
