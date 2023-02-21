@@ -1,4 +1,5 @@
 import json
+import re
 import requests
 import web
 from urllib.parse import parse_qs
@@ -90,7 +91,7 @@ class NotificationRobot:
                                     "is_short": False,
                                     "text": {
                                         "tag": "lark_md",
-                                        "content": data['build']['log'] if data['build']['phase'] == 'FINALIZED' else data['build']['phase']
+                                        "content": self.get_notification_form_log(data['build']['log']) if data['build']['phase'] == 'FINALIZED' else data['build']['phase']
                                     }
                                 }
                             ]
@@ -102,6 +103,10 @@ class NotificationRobot:
         else:
             print(f'Not job: {data["build"]["full_url"]}, phase: {data["build"]["phase"]}')
 
+    @staticmethod
+    def get_notification_form_log(log: str) -> str:
+        res = re.findall(r'<Notification>(.*)</Notification>', log)
+        return log.split('\n')[-2] if len(res) == 0 else res[0]
 
 if __name__ == "__main__":
     web.httpserver.runsimple(app.wsgifunc(), ("0.0.0.0", 8000))
