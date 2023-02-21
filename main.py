@@ -16,7 +16,7 @@ class NotificationRobot:
     def POST(self):
         data = json.loads(web.data())
 
-        if data['build']['status'] == 'FAILURE':
+        if data['build']['phase'] in ['QUEUED', 'STARTED', 'FINALIZED']:
             # Get Feishu webhook URL.
             try:
                 feishu_webhook = parse_qs(data['build']['notes'])['feishu_webhook'][0]
@@ -33,9 +33,15 @@ class NotificationRobot:
                         "wide_screen_mode": True
                     },
                     "header": {
-                        "template": "red",
+                        "template": {
+                            'STARTED': lambda : 'blue',
+                            'FINALIZED': lambda : {
+                                'FAILURE': 'red',
+                                'SUCCESS': 'green'
+                            }.get(data['build']['status'], 'grey')
+                        }.get(data['build']['phase'], lambda : 'grey')(),
                         "title": {
-                            "content": f"【Jenkins Job Failure】{data['display_name']}",
+                            "content": f"[Jenkins Job {data['build']['phase'].title()}] {data['display_name']}",
                             "tag": "plain_text"
                         }
                     },
@@ -56,6 +62,13 @@ class NotificationRobot:
                                         "tag": "lark_md",
                                         "content": f"**URL**：\n{data['build']['full_url']}"
                                     }
+                                },
+                                {
+                                    "is_short": False,
+                                    "text": {
+                                        "tag": "lark_md",
+                                        "content": data['build']['log']
+                                    }
                                 }
                             ]
                         }
@@ -64,7 +77,7 @@ class NotificationRobot:
             }
             requests.post(feishu_webhook, json=feishu_msg)
         else:
-            print(f'Not failure job: {data["build"]["full_url"]}')
+            print(f'Not job: {data["build"]["full_url"]}, phase: {data["build"]["phase"]}')
 
 
 if __name__ == "__main__":
