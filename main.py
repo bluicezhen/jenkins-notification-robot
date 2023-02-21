@@ -15,6 +15,7 @@ class NotificationRobot:
 
     def POST(self):
         data = json.loads(web.data())
+        print(json.dumps(data, indent=4))
 
         if data['build']['phase'] in ['STARTED', 'FINALIZED']:
             # Get Feishu webhook URL.
@@ -64,10 +65,32 @@ class NotificationRobot:
                                     }
                                 },
                                 {
+                                    "is_short": True,
+                                    "text": {
+                                        "tag": "lark_md",
+                                        "content": f"**Number**：\n{data['build']['number']}"
+                                    }
+                                },
+                                {
+                                    "is_short": True,
+                                    "text": {
+                                        "tag": "lark_md",
+                                        "content": f"**Duration**：\n{round(data['build']['duration'] / 1000 / 60, 2)} minutes"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "hr"
+                        },
+                        {
+                            "tag": "div",
+                            "fields": [
+                                {
                                     "is_short": False,
                                     "text": {
                                         "tag": "lark_md",
-                                        "content": data['build']['log']
+                                        "content": data['build']['log'] if data['build']['phase'] == 'FINALIZED' else data['build']['phase']
                                     }
                                 }
                             ]
