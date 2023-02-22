@@ -16,7 +16,6 @@ class NotificationRobot:
 
     def POST(self):
         data = json.loads(web.data())
-        print(json.dumps(data, indent=4))
 
         if data['build']['phase'] in ['STARTED', 'FINALIZED']:
             # Get Feishu webhook URL.
@@ -106,7 +105,7 @@ class NotificationRobot:
     @staticmethod
     def get_notification_form_log(log: str) -> str:
         res = re.findall(r'<Notification>(.*)</Notification>', log)
-        return log.split('\n')[-2] if len(res) == 0 else res[0]
+        return log.split('\n')[-2] if len(res) == 0 else res[0].replace('\\n', '\n')
 
 if __name__ == "__main__":
     web.httpserver.runsimple(app.wsgifunc(), ("0.0.0.0", 8000))
