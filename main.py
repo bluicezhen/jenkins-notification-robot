@@ -104,6 +104,7 @@ class NotificationRobot:
 
     @staticmethod
     def get_notification_form_log(log: str) -> str:
+        print(f'log={log}')
         res = re.findall(r'<Notification>(.*)</Notification>', log)
         return log.split('\n')[-2] if len(res) == 0 else res[0].replace('\\n', '\n')
 
