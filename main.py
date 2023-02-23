@@ -106,7 +106,10 @@ class NotificationRobot:
     def get_notification_form_log(log: str) -> str:
         print(f'log={log}')
         res = re.findall(r'<Notification>(.*)</Notification>', log)
-        return log.split('\n')[-2] if len(res) == 0 else res[0].replace('\\n', '\n')
+        try:
+            return log.split('\n')[-2] if len(res) == 0 else res[0].replace('\\n', '\n')
+        except KeyError(e):
+            return 'null'
 
 if __name__ == "__main__":
     web.httpserver.runsimple(app.wsgifunc(), ("0.0.0.0", 8000))
